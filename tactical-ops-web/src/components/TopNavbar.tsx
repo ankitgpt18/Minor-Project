@@ -3,7 +3,8 @@ import {
   RefreshCw,
   Bell,
   Download,
-  Satellite
+  Satellite,
+  BookOpen
 } from 'lucide-react';
 import { SECTORS } from '../data/sectorsData';
 
@@ -18,6 +19,7 @@ interface TopNavbarProps {
   isRefreshing: boolean;
   onOpenAlerts: () => void;
   unreadAlertsCount: number;
+  onOpenDocs?: () => void;
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({
@@ -30,7 +32,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   onRefreshTelemetry,
   isRefreshing,
   onOpenAlerts,
-  unreadAlertsCount
+  unreadAlertsCount,
+  onOpenDocs
 }) => {
   return (
     <header className="h-16 px-4 bg-[#0e1015] border-b border-[#1e222d] flex items-center justify-between text-xs select-none sticky top-0 z-40">
@@ -90,6 +93,18 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
         </button>
+
+        {/* Docs Button */}
+        {onOpenDocs && (
+          <button
+            onClick={onOpenDocs}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-cyan-400 font-medium cursor-pointer transition-colors"
+            title="Open Architecture & System Documentation"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Docs</span>
+          </button>
+        )}
 
         {/* Alerts Pill */}
         <button

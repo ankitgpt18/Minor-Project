@@ -38,6 +38,7 @@ export const App: React.FC = () => {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         unreadAlertsCount={7}
+        onOpenDocs={() => setIsDocsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -54,6 +55,7 @@ export const App: React.FC = () => {
           isRefreshing={isRefreshing}
           onOpenAlerts={() => setIsAlertsOpen(true)}
           unreadAlertsCount={7}
+          onOpenDocs={() => setIsDocsOpen(true)}
         />
 
         {/* View Router */}

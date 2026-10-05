@@ -7,7 +7,8 @@ import {
   ShieldAlert,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  BookOpen
 } from 'lucide-react';
 
 export type NavView =
@@ -23,13 +24,15 @@ interface SidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   unreadAlertsCount?: number;
+  onOpenDocs?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   onSelectView,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  onOpenDocs
 }) => {
   return (
     <aside
@@ -159,6 +162,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Alerts
               </span>
             )}
+          </button>
+        </div>
+
+        {/* SECTION 4: ARCHITECTURE & SPECS */}
+        <div className="space-y-1">
+          {!isCollapsed && (
+            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
+              Architecture & Specs
+            </div>
+          )}
+          <button
+            onClick={onOpenDocs}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-cyan-400 hover:text-cyan-300 hover:bg-[#161922] transition-all cursor-pointer"
+            title="System Architecture & Docs"
+          >
+            <BookOpen className="w-4 h-4 shrink-0 text-cyan-400" />
+            {!isCollapsed && <span>System Architecture Docs</span>}
           </button>
         </div>
       </div>
