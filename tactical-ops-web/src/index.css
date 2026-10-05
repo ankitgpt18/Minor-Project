@@ -99,3 +99,12 @@ body {
 .leaflet-popup-content {
   margin: 10px 12px !important;
 }
+
+/* Custom DivIcon wrappers must allow overflow for floating cards and labels */
+.custom-depot-node,
+.custom-milestone-node,
+.custom-pass-node {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
