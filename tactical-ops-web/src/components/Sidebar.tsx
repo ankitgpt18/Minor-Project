@@ -32,39 +32,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectView,
   isCollapsed,
   onToggleCollapse,
+  unreadAlertsCount = 7,
   onOpenDocs
 }) => {
   return (
     <aside
-      className={`h-screen bg-[#0e1015] border-r border-[#1e222d] flex flex-col transition-all duration-300 z-50 select-none ${
-        isCollapsed ? 'w-[72px]' : 'w-[260px]'
+      className={`h-screen bg-[#0e1015] border-r border-[#1e222d] flex flex-col transition-all duration-200 z-50 select-none shrink-0 ${
+        isCollapsed ? 'w-[68px]' : 'w-[250px]'
       }`}
     >
-      {/* Brand Header */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-[#1e222d]/80">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-lg bg-cyan-950/80 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shrink-0">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          {!isCollapsed && (
-            <div className="leading-tight">
-              <div className="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
-                <span>TacticalRoute</span>
+      {/* Brand Header: Cleanly centered when collapsed, spaced when expanded */}
+      <div
+        className={`h-16 border-b border-[#1e222d] flex items-center ${
+          isCollapsed ? 'justify-center px-0' : 'justify-between px-4'
+        }`}
+      >
+        {isCollapsed ? (
+          <button
+            onClick={onToggleCollapse}
+            className="w-10 h-10 rounded-lg bg-[#141720] border border-[#232835] hover:bg-[#1b1f2b] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            title="Expand Navigation"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <>
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-[#141720] border border-[#232835] flex items-center justify-center text-slate-200 shrink-0">
+                <ShieldCheck className="w-4 h-4" />
               </div>
-              <div className="text-[10px] text-slate-400 font-medium tracking-wide">
-                LAC Defense FL Intelligence
+              <div className="leading-tight">
+                <div className="font-bold text-sm tracking-tight text-white">
+                  TacticalRoute
+                </div>
+                <div className="text-[10px] text-slate-400 font-medium">
+                  LAC Logistics Intelligence
+                </div>
               </div>
             </div>
-          )}
-        </div>
 
-        <button
-          onClick={onToggleCollapse}
-          className="w-7 h-7 rounded-md bg-[#161922] border border-[#232836] hover:bg-[#1f2432] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+            <button
+              onClick={onToggleCollapse}
+              className="w-7 h-7 rounded-md bg-[#141720] border border-[#232835] hover:bg-[#1b1f2b] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              title="Collapse Navigation"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Navigation Sections */}
@@ -72,16 +87,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* SECTION 1: OVERVIEW */}
         <div className="space-y-1">
           {!isCollapsed && (
-            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
+            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
               Overview
             </div>
           )}
           <button
             onClick={() => onSelectView('EXECUTIVE_DASHBOARD')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
+            } py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               currentView === 'EXECUTIVE_DASHBOARD'
-                ? 'bg-white text-slate-950 shadow-md font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#161922]'
+                ? 'bg-white text-slate-950 shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#141720]'
             }`}
             title="Executive Dashboard"
           >
@@ -93,16 +110,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* SECTION 2: GEOSPATIAL & TELEMETRY */}
         <div className="space-y-1">
           {!isCollapsed && (
-            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
+            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
               Geospatial & Telemetry
             </div>
           )}
           <button
             onClick={() => onSelectView('INTERACTIVE_TACTICAL_MAP')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
+            } py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               currentView === 'INTERACTIVE_TACTICAL_MAP'
-                ? 'bg-white text-slate-950 shadow-md font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#161922]'
+                ? 'bg-white text-slate-950 shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#141720]'
             }`}
             title="Interactive Frontier Map"
           >
@@ -112,10 +131,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => onSelectView('CONSUMPTION_TRENDS')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
+            } py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               currentView === 'CONSUMPTION_TRENDS'
-                ? 'bg-white text-slate-950 shadow-md font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#161922]'
+                ? 'bg-white text-slate-950 shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#141720]'
             }`}
             title="Consumption & Stock Trends"
           >
@@ -127,16 +148,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* SECTION 3: OPERATIONS */}
         <div className="space-y-1">
           {!isCollapsed && (
-            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
+            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
               Operations
             </div>
           )}
           <button
             onClick={() => onSelectView('CONVOY_PATHFINDER')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
+            } py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               currentView === 'CONVOY_PATHFINDER'
-                ? 'bg-white text-slate-950 shadow-md font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#161922]'
+                ? 'bg-white text-slate-950 shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#141720]'
             }`}
             title="Convoy & UAV Pathfinder"
           >
@@ -146,10 +169,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => onSelectView('RISK_EARLY_WARNING')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'justify-between px-3'
+            } py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               currentView === 'RISK_EARLY_WARNING'
-                ? 'bg-white text-slate-950 shadow-md font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#161922]'
+                ? 'bg-white text-slate-950 shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#141720]'
             }`}
             title="Pass Risk & Early Warning"
           >
@@ -158,40 +183,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!isCollapsed && <span>Risk & Early Warning</span>}
             </div>
             {!isCollapsed && (
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono">
-                Alerts
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                {unreadAlertsCount}
               </span>
             )}
           </button>
         </div>
 
         {/* SECTION 4: ARCHITECTURE & SPECS */}
-        <div className="space-y-1">
+        <div className="space-y-1 pt-2 border-t border-[#1e222d]/60">
           {!isCollapsed && (
-            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">
-              Architecture & Specs
+            <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
+              Documentation
             </div>
           )}
           <button
             onClick={onOpenDocs}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-cyan-400 hover:text-cyan-300 hover:bg-[#161922] transition-all cursor-pointer"
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
+            } py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-[#141720] transition-all cursor-pointer`}
             title="System Architecture & Docs"
           >
-            <BookOpen className="w-4 h-4 shrink-0 text-cyan-400" />
-            {!isCollapsed && <span>System Architecture Docs</span>}
+            <BookOpen className="w-4 h-4 shrink-0 text-slate-400" />
+            {!isCollapsed && <span>Architecture & Specs</span>}
           </button>
         </div>
-      </div>
-
-      {/* Bottom Collapsed Toggle bar */}
-      <div className="h-12 border-t border-[#1e222d] px-3 flex items-center justify-center">
-        <button
-          onClick={onToggleCollapse}
-          className="text-slate-500 hover:text-slate-300 text-xs transition-colors cursor-pointer"
-        >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
       </div>
     </aside>
   );
 };
+
+export default Sidebar;

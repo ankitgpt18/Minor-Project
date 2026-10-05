@@ -61,8 +61,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
       <div className="flex items-center gap-2.5">
         {/* Sensor / Period Dropdown Pill */}
         <div className="hidden md:flex items-center gap-2 bg-[#151820] border border-[#232835] rounded-lg px-2.5 py-1.5 text-slate-300">
-          <Satellite className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="font-semibold text-slate-200">NASA DEM / IMD:</span>
+          <Satellite className="w-3.5 h-3.5 text-slate-400" />
+          <span className="font-semibold text-slate-300">NASA DEM / IMD:</span>
           <select
             value={selectedMonth}
             onChange={(e) => onChangeMonth(e.target.value)}
@@ -91,17 +91,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           className="w-8 h-8 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
           title="Synchronize Decentralized Telemetry"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-white' : ''}`} />
         </button>
 
         {/* Docs Button */}
         {onOpenDocs && (
           <button
             onClick={onOpenDocs}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-cyan-400 font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-slate-300 hover:text-white font-medium cursor-pointer transition-colors"
             title="Open Architecture & System Documentation"
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-3.5 h-3.5 text-slate-400" />
             <span className="hidden sm:inline">Docs</span>
           </button>
         )}
@@ -109,18 +109,18 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
         {/* Alerts Pill */}
         <button
           onClick={onOpenAlerts}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-slate-300 font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151820] border border-[#232835] hover:bg-[#1e2330] text-slate-300 hover:text-white font-medium cursor-pointer transition-colors"
         >
-          <Bell className="w-3.5 h-3.5 text-rose-400" />
+          <Bell className="w-3.5 h-3.5 text-slate-400" />
           <span>Alerts</span>
           {unreadAlertsCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-rose-600 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+            <span className="px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono text-[9px] font-bold">
               {unreadAlertsCount}
             </span>
           )}
         </button>
 
-        {/* Export Dossier Dropdown Button */}
+        {/* Export Dossier Button */}
         <button
           onClick={() => {
             alert('Exporting Classified High-Altitude Telemetry Dossier (DP-Sanitized PDF/XLSX)...');
