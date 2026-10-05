@@ -4,11 +4,11 @@ import { Sidebar, type NavView } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
 import { ExecutiveDashboardView } from './components/ExecutiveDashboardView';
 import { InteractiveTacticalMapView } from './components/InteractiveTacticalMapView';
+import { ConsumptionTrendsView } from './components/ConsumptionTrendsView';
 import { ConvoyPathfinderView } from './components/ConvoyPathfinderView';
+import { RiskEarlyWarningView } from './components/RiskEarlyWarningView';
 import { DocsModal } from './components/DocsModal';
-import { SecuritySandbox } from './components/SecuritySandbox';
-import { INITIAL_METRICS, type TacticalMetrics } from './data/tacticalData';
-import { ShieldAlert, Bell, Activity } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<NavView>('EXECUTIVE_DASHBOARD');
@@ -19,8 +19,6 @@ export const App: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isDocsOpen, setIsDocsOpen] = useState<boolean>(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
-  const [metrics, setMetrics] = useState<TacticalMetrics>(INITIAL_METRICS);
-  const [isSimulatingRound, setIsSimulatingRound] = useState<boolean>(false);
 
   const activeSector = SECTORS.find((s: SectorDepot) => s.id === activeSectorId) || SECTORS[0];
 
@@ -31,41 +29,9 @@ export const App: React.FC = () => {
     }, 1000);
   };
 
-  const handleToggleSecAgg = () => {
-    setMetrics((p) => ({ ...p, secAggActive: !p.secAggActive }));
-  };
-
-  const handleToggleTopk = () => {
-    setMetrics((p) => ({ ...p, topkSparsificationActive: !p.topkSparsificationActive }));
-  };
-
-  const handleToggleAdaptiveDp = () => {
-    setMetrics((p) => ({ ...p, adaptiveDpActive: !p.adaptiveDpActive }));
-  };
-
-  const handleToggleDirectionalCosine = () => {
-    setMetrics((p) => ({ ...p, directionalCosineActive: !p.directionalCosineActive }));
-  };
-
-  const handleToggleClusteredFl = () => {
-    setMetrics((p) => ({ ...p, clusteredFlActive: !p.clusteredFlActive }));
-  };
-
-  const handleExecuteFederatedRound = () => {
-    setIsSimulatingRound(true);
-    setTimeout(() => {
-      setMetrics((p) => ({
-        ...p,
-        roundsCompleted: p.roundsCompleted + 1,
-        globalLeadTimeMaeHours: Math.max(1.22, +(p.globalLeadTimeMaeHours - 0.02).toFixed(2))
-      }));
-      setIsSimulatingRound(false);
-    }, 1200);
-  };
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0a0b0e] text-slate-100 font-sans">
-      {/* 1. Left Sidebar Navigation (Matching InlandRoute exactly) */}
+      {/* Left Sidebar Navigation */}
       <Sidebar
         currentView={currentView}
         onSelectView={setCurrentView}
@@ -74,7 +40,7 @@ export const App: React.FC = () => {
         unreadAlertsCount={7}
       />
 
-      {/* 2. Main Content Area */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Navbar Header */}
         <TopNavbar
@@ -90,7 +56,7 @@ export const App: React.FC = () => {
           unreadAlertsCount={7}
         />
 
-        {/* View Switcher based on Sidebar selection */}
+        {/* View Router */}
         <main className="flex-1 overflow-y-auto bg-[#0a0b0e]">
           {currentView === 'EXECUTIVE_DASHBOARD' && (
             <ExecutiveDashboardView activeSector={activeSector} />
@@ -103,49 +69,16 @@ export const App: React.FC = () => {
             />
           )}
 
+          {currentView === 'CONSUMPTION_TRENDS' && (
+            <ConsumptionTrendsView activeSector={activeSector} />
+          )}
+
           {currentView === 'CONVOY_PATHFINDER' && (
             <ConvoyPathfinderView activeSector={activeSector} />
           )}
 
-          {currentView === 'CONSUMPTION_TRENDS' && (
-            <div className="p-6 max-w-[1400px] mx-auto space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Activity className="w-5 h-5 text-cyan-400" />
-                <span>Consumption Dynamics & Winter Stocking (AWS) Telemetry</span>
-              </h2>
-              <p className="text-xs text-slate-400">
-                On-device federated time-series predictions calibrated against DFRL 4,500 kcal nutritional standards and BRO pass closure records.
-              </p>
-              <ExecutiveDashboardView activeSector={activeSector} />
-            </div>
-          )}
-
           {currentView === 'RISK_EARLY_WARNING' && (
-            <div className="p-6 max-w-[1400px] mx-auto space-y-4">
-              <div className="flex items-center justify-between border-b border-[#1e222d] pb-3">
-                <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-rose-500" />
-                    <span>Himalayan Pass Early Warning & Electronic Warfare Defense</span>
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Active D-DIL jamming monitoring, avalanche probability vectors, and Byzantine node sabotage isolation.
-                  </p>
-                </div>
-              </div>
-
-              {/* Embed Security Sandbox */}
-              <SecuritySandbox
-                metrics={metrics}
-                onToggleSecAgg={handleToggleSecAgg}
-                onToggleTopk={handleToggleTopk}
-                onToggleAdaptiveDp={handleToggleAdaptiveDp}
-                onToggleDirectionalCosine={handleToggleDirectionalCosine}
-                onToggleClusteredFl={handleToggleClusteredFl}
-                onExecuteFederatedRound={handleExecuteFederatedRound}
-                isSimulatingRound={isSimulatingRound}
-              />
-            </div>
+            <RiskEarlyWarningView activeSector={activeSector} />
           )}
         </main>
       </div>
@@ -166,7 +99,7 @@ export const App: React.FC = () => {
                 onClick={() => setIsAlertsOpen(false)}
                 className="text-slate-400 hover:text-white cursor-pointer"
               >
-                ✕
+                x
               </button>
             </div>
 
@@ -198,6 +131,26 @@ export const App: React.FC = () => {
                 </div>
                 <p className="text-[11px] text-slate-400">
                   Federated GRU completed multi-round consensus. Ammunition safety stock buffer calibrated for 5-month isolation.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-800/60 text-slate-300 space-y-1">
+                <div className="font-bold text-amber-400 flex items-center justify-between">
+                  <span>Khardung La Wind Advisory</span>
+                  <span className="text-[10px] font-mono">17,982 ft</span>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Sustained 65 km/h crosswinds. UAV vertical lift operations suspended until wind speed drops below 45 km/h threshold.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/60 text-slate-300 space-y-1">
+                <div className="font-bold text-rose-400 flex items-center justify-between">
+                  <span>DBO Ration Stock Critical</span>
+                  <span className="text-[10px] font-mono">22 days left</span>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Forward post rations below 30-day threshold. Emergency drone resupply sortie from Diskit Hub queued.
                 </p>
               </div>
             </div>
