@@ -18,49 +18,79 @@ interface InteractiveTacticalMapViewProps {
   onSelectSector: (sectorId: string) => void;
 }
 
-// Broad, Enlarged Tactical Waypoint Node Icon (Matching InlandRoute's visual clarity in Image 2)
-const createDepotMarkerIcon = (sector: SectorDepot, isSelected: boolean) => {
+// Calculative geodesic mountain distance formula
+const calculateDistanceKm = (from: SectorDepot, to: SectorDepot): number => {
+  if (from.id === to.id) return 0;
+  const R = 6371;
+  const dLat = (to.lat - from.lat) * (Math.PI / 180);
+  const dLon = (to.lng - from.lng) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(from.lat * (Math.PI / 180)) * Math.cos(to.lat * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const directKm = R * c;
+  // Mountain road tortuosity factor (~1.38 for Himalayan terrain)
+  return Math.round(directKm * 1.38);
+};
+
+// Calculative transit time
+const calculateTransitHours = (distanceKm: number, altitudeFt: number): number => {
+  if (distanceKm === 0) return 0;
+  const speed = altitudeFt > 13000 ? 32 : 42;
+  return +(distanceKm / speed).toFixed(1);
+};
+
+// Calculative navigability status
+const calculateNavigability = (sector: SectorDepot) => {
+  if (sector.status === 'CRITICAL') return { label: '58% Restricted', color: '#f87171' };
+  if (sector.isJammed) return { label: '76% EW Rerouting', color: '#fbbf24' };
+  return { label: '98.5% Operational', color: '#34d399' };
+};
+
+// Broad, Enlarged Tactical Waypoint Node Icon with HOVER-ONLY Callout Card
+const createDepotMarkerIcon = (sector: SectorDepot, isSelected: boolean, activeSector: SectorDepot) => {
   const isCritical = sector.status === 'CRITICAL';
   const ringColor = isSelected ? '#38bdf8' : isCritical ? '#f87171' : '#cbd5e1';
   const glowColor = isSelected ? 'rgba(56, 189, 248, 0.8)' : isCritical ? 'rgba(239, 68, 68, 0.5)' : 'rgba(148, 163, 184, 0.4)';
 
-  // Floating Callout Card (Exact replica of Sadiya Terminal card from InlandRoute Image 2)
-  const calloutCard = isSelected
-    ? `
-      <div style="
-        position: absolute;
-        bottom: 38px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #090c13;
-        border: 2px solid #233044;
-        border-radius: 12px;
-        padding: 12px 18px;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.95), 0 0 1px #38bdf8;
-        min-width: 230px;
-        white-space: nowrap;
-        pointer-events: auto;
-        z-index: 1000;
-      ">
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #38bdf8; font-size: 14px; margin-bottom: 7px; letter-spacing: -0.2px;">
-          <span style="font-size: 15px;">▲</span>
-          <span>${sector.name.split(' (')[0]}</span>
-        </div>
-        <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 3px;">
-          <span>Terminal Chainage:</span>
-          <span style="color: #ffffff; font-weight: 800; font-family: monospace;">km ${sector.id === 'sec-leh' ? '0' : sector.id === 'sec-kargil' ? '216' : sector.id === 'sec-dbo' ? '258' : sector.id === 'sec-nyoma' ? '182' : '118'}</span>
-        </div>
-        <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 3px;">
-          <span>Altitude Clearance:</span>
-          <span style="color: #38bdf8; font-weight: 800; font-family: monospace;">${sector.altitudeFt.toLocaleString()} ft</span>
-        </div>
-        <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
-          <span>Navigability Status:</span>
-          <span style="color: #10b981; font-weight: 800; font-family: monospace;">100% Operational</span>
-        </div>
+  const distanceKm = calculateDistanceKm(activeSector, sector);
+  const transitHours = calculateTransitHours(distanceKm, sector.altitudeFt);
+  const navigability = calculateNavigability(sector);
+
+  // Floating Callout Card - Wrapped in .station-hover-callout so it ONLY displays when user hovers!
+  const calloutCard = `
+    <div class="station-hover-callout" style="
+      position: absolute;
+      bottom: 38px;
+      left: 50%;
+      background: #090c13;
+      border: 2px solid #233044;
+      border-radius: 12px;
+      padding: 12px 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.95), 0 0 1px #38bdf8;
+      min-width: 235px;
+      white-space: nowrap;
+      pointer-events: auto;
+    ">
+      <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #38bdf8; font-size: 14px; margin-bottom: 7px; letter-spacing: -0.2px;">
+        <span style="font-size: 15px;">▲</span>
+        <span>${sector.name.split(' (')[0]}</span>
       </div>
-    `
-    : '';
+      <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 3px;">
+        <span>Terminal Chainage:</span>
+        <span style="color: #ffffff; font-weight: 800; font-family: monospace;">${distanceKm === 0 ? 'km 0 (Origin)' : `km ${distanceKm} (${transitHours}h)`}</span>
+      </div>
+      <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 3px;">
+        <span>Altitude Clearance:</span>
+        <span style="color: #38bdf8; font-weight: 800; font-family: monospace;">${sector.altitudeFt.toLocaleString()} ft</span>
+      </div>
+      <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
+        <span>Navigability Status:</span>
+        <span style="color: ${navigability.color}; font-weight: 800; font-family: monospace;">${navigability.label}</span>
+      </div>
+    </div>
+  `;
 
   const html = `
     <div style="position: relative; width: ${isSelected ? '32px' : '24px'}; height: ${isSelected ? '32px' : '24px'};">
@@ -194,17 +224,11 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-[#0a0b0e]">
-      {/* Top Banner (Broad, Clear Route Heading) */}
+      {/* Top Banner - Removed static "100.0% Navigable | 4 Mountain Corridors" as requested */}
       <div className="absolute top-4 left-5 z-[400] flex items-center gap-3">
-        <div className="bg-[#0e1015]/95 backdrop-blur-md border border-[#1e222d] rounded-lg px-4 py-2.5 flex items-center gap-3.5 text-xs shadow-xl select-none">
-          <div className="flex items-center gap-2 font-bold text-white text-sm">
-            <Activity className="w-4 h-4 text-cyan-400" />
-            <span>{activeSector.shortCode} Strategic Resupply Route</span>
-          </div>
-          <span className="text-slate-700">|</span>
-          <span className="font-mono text-cyan-400 font-bold text-xs">100.0% Navigable</span>
-          <span className="text-slate-700">|</span>
-          <span className="text-slate-300 font-medium">4 Mountain Corridors</span>
+        <div className="bg-[#0e1015]/95 backdrop-blur-md border border-[#1e222d] rounded-lg px-4 py-2.5 flex items-center gap-2.5 text-xs shadow-xl select-none">
+          <Activity className="w-4 h-4 text-cyan-400" />
+          <span className="font-bold text-white text-sm">{activeSector.shortCode} Strategic Resupply Route</span>
         </div>
       </div>
 
@@ -281,7 +305,7 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
 
           return (
             <React.Fragment key={corr.id}>
-              {/* Layer 1: Outer Highlight Light Blur Glow (Image 2 style) */}
+              {/* Layer 1: Outer Highlight Light Blur Glow */}
               <Polyline
                 positions={corr.coordinates}
                 pathOptions={{
@@ -361,14 +385,14 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
           </Marker>
         ))}
 
-        {/* Primary Sector Depot Stations */}
+        {/* Primary Sector Depot Stations - Hover-Only Callout Card with Dynamic Geodesic Distance */}
         {SECTORS.map((sector) => {
           const isSelected = sector.id === activeSector.id;
           return (
             <Marker
               key={sector.id}
               position={[sector.lat, sector.lng]}
-              icon={createDepotMarkerIcon(sector, isSelected)}
+              icon={createDepotMarkerIcon(sector, isSelected, activeSector)}
               eventHandlers={{
                 click: () => onSelectSector(sector.id)
               }}

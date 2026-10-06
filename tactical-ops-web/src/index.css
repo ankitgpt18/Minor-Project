@@ -108,3 +108,20 @@ body {
   border: none !important;
   overflow: visible !important;
 }
+
+/* Station Hover Callout Card - Only visible on hover, never default */
+.station-hover-callout {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform: translate(-50%, 6px) !important;
+}
+
+.custom-depot-node:hover .station-hover-callout {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate(-50%, 0) !important;
+  z-index: 2000 !important;
+}

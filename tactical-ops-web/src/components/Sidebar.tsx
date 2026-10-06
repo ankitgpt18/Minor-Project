@@ -6,8 +6,6 @@ import {
   Navigation,
   ShieldAlert,
   ChevronLeft,
-  ChevronRight,
-  ShieldCheck,
   BookOpen
 } from 'lucide-react';
 
@@ -50,23 +48,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <button
             onClick={onToggleCollapse}
-            className="w-10 h-10 rounded-lg bg-[#141720] border border-[#232835] hover:bg-[#1b1f2b] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-lg bg-[#141720] border border-[#232835] hover:bg-[#1b1f2b] p-1.5 flex items-center justify-center transition-colors cursor-pointer"
             title="Expand Navigation"
           >
-            <ChevronRight className="w-4 h-4" />
+            <img src="/tandem-logo.png" alt="Tandem" className="w-6 h-6 object-contain rounded" />
           </button>
         ) : (
           <>
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-[#141720] border border-[#232835] flex items-center justify-center text-slate-200 shrink-0">
-                <ShieldCheck className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#141720] border border-[#232835] flex items-center justify-center shrink-0 overflow-hidden p-1">
+                <img src="/tandem-logo.png" alt="Tandem" className="w-6 h-6 object-contain rounded" />
               </div>
               <div className="leading-tight">
-                <div className="font-bold text-sm tracking-tight text-white">
-                  TacticalRoute
-                </div>
-                <div className="text-[10px] text-slate-400 font-medium">
-                  LAC Logistics Intelligence
+                <div className="font-bold text-base tracking-tight text-white">
+                  Tandem
                 </div>
               </div>
             </div>
