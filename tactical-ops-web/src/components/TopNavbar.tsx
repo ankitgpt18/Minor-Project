@@ -20,6 +20,7 @@ interface TopNavbarProps {
   onOpenAlerts: () => void;
   unreadAlertsCount: number;
   onOpenDocs?: () => void;
+  onOpenExport?: () => void;
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({
@@ -33,7 +34,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   isRefreshing,
   onOpenAlerts,
   unreadAlertsCount,
-  onOpenDocs
+  onOpenDocs,
+  onOpenExport
 }) => {
   return (
     <header className="h-16 px-4 bg-[#0e1015] border-b border-[#1e222d] flex items-center justify-between text-xs select-none sticky top-0 z-40">
@@ -122,9 +124,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
 
         {/* Export Dossier Button */}
         <button
-          onClick={() => {
-            alert('Exporting Classified High-Altitude Telemetry Dossier (DP-Sanitized PDF/XLSX)...');
-          }}
+          onClick={onOpenExport}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-slate-950 font-bold hover:bg-slate-200 transition-colors cursor-pointer shadow-sm"
         >
           <Download className="w-3.5 h-3.5" />

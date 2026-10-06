@@ -359,7 +359,7 @@ export const RiskEarlyWarningView: React.FC<RiskEarlyWarningViewProps> = ({
                         ? 'bg-zinc-900 text-rose-400 border border-rose-900/60'
                         : 'bg-zinc-900 text-zinc-300 border border-zinc-700'
                     }`}>
-                      {s.isCompromised ? 'SUSPECT' : 'VERIFIED'}
+                      {s.isCompromised ? 'SUSPECT' : 'OPTIMAL'}
                     </span>
                   </td>
                 </tr>

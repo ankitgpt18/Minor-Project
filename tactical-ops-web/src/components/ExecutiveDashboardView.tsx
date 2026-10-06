@@ -258,14 +258,32 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-[#161922] border border-[#232836] text-[11px] text-slate-400 space-y-1">
-            <div className="font-semibold text-slate-200 flex items-center justify-between">
-              <span>Zero Raw Data Leakage</span>
-              <span className="text-zinc-300 font-mono text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700">SECURE</span>
+          {/* Tactical Logistics Queue */}
+          <div className="p-3.5 rounded-lg bg-[#161922] border border-[#232835] space-y-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-200">Active Supply Dispatch Queue</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-cyan-400 border border-zinc-700 font-bold">
+                QUEUE: 2 PENDING
+              </span>
             </div>
-            <p className="text-slate-400">
-              Local gradient updates are noise-perturbed on-device and masked using ephemeral Diffie-Hellman secret shares prior to transmission.
-            </p>
+            
+            <div className="space-y-2 text-[11px]">
+              <div className="p-2 rounded bg-[#11131a] border border-[#1e2330] flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-slate-200">155mm Artillery Resupply Sortie</div>
+                  <div className="text-[10px] text-slate-500">Route: Leh Base to {activeSector.name.split(' (')[0]}</div>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-amber-400">EN ROUTE</span>
+              </div>
+
+              <div className="p-2 rounded bg-[#11131a] border border-[#1e2330] flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-slate-200">Winterized High-Calorie Rations</div>
+                  <div className="text-[10px] text-slate-500">Buffer: 30-Day Forward Allocation</div>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-slate-400">QUEUED</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

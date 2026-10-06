@@ -8,6 +8,7 @@ import { ConsumptionTrendsView } from './components/ConsumptionTrendsView';
 import { ConvoyPathfinderView } from './components/ConvoyPathfinderView';
 import { RiskEarlyWarningView } from './components/RiskEarlyWarningView';
 import { DocsModal } from './components/DocsModal';
+import { ExportModal } from './components/ExportModal';
 import { Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -19,6 +20,7 @@ export const App: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isDocsOpen, setIsDocsOpen] = useState<boolean>(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
+  const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
 
   const activeSector = SECTORS.find((s: SectorDepot) => s.id === activeSectorId) || SECTORS[0];
 
@@ -56,6 +58,7 @@ export const App: React.FC = () => {
           onOpenAlerts={() => setIsAlertsOpen(true)}
           unreadAlertsCount={7}
           onOpenDocs={() => setIsDocsOpen(true)}
+          onOpenExport={() => setIsExportOpen(true)}
         />
 
         {/* View Router */}
@@ -87,6 +90,13 @@ export const App: React.FC = () => {
 
       {/* Architecture Documentation Modal */}
       <DocsModal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
+
+      {/* Export Telemetry Dossier Modal */}
+      <ExportModal
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        activeSector={activeSector}
+      />
 
       {/* Alerts Modal Drawer */}
       {isAlertsOpen && (
