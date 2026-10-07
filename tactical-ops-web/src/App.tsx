@@ -10,7 +10,7 @@ import { RiskEarlyWarningView } from './components/RiskEarlyWarningView';
 import { DocsModal } from './components/DocsModal';
 import { ExportModal } from './components/ExportModal';
 import { TelemetryConsole } from './components/TelemetryConsole';
-import { Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<NavView>('EXECUTIVE_DASHBOARD');
@@ -125,77 +125,103 @@ export const App: React.FC = () => {
 
       {/* Alerts Modal Drawer */}
       {isAlertsOpen && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg bg-[#0e1015] border border-[#1e222d] rounded-xl p-5 shadow-2xl space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-[#1e222d] pb-3">
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+          <div className="w-full max-w-lg bg-[#0c0e15] border border-zinc-800 rounded-xl p-5 shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <span className="font-bold text-sm text-white flex items-center gap-2">
-                <Bell className="w-4 h-4 text-rose-400" />
+                <Bell className="w-4 h-4 text-white" />
                 <span>Tactical Operational Alerts ({alertCount} Active)</span>
               </span>
               <button
                 onClick={() => setIsAlertsOpen(false)}
-                className="text-slate-400 hover:text-white cursor-pointer"
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Close Alerts"
               >
-                x
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-2.5 max-h-[360px] overflow-y-auto">
-              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/60 text-slate-300 space-y-1">
-                <div className="font-bold text-rose-400 flex items-center justify-between">
-                  <span>Pass Blockage: Sasser Pass</span>
-                  <span className="text-[10px] font-mono">17,753 ft</span>
+            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+              <div className="p-3.5 rounded-lg bg-[#12141a] border border-zinc-800/80 text-zinc-300 space-y-1">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    <span>Pass Blockage: Sasser Pass</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                    17,753 ft &bull; CRITICAL
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Heavy snowfall warning. Corridor closed to wheeled transport. Automatic fallback routed to heavy-lift logistics drone.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-800/60 text-slate-300 space-y-1">
-                <div className="font-bold text-amber-400 flex items-center justify-between">
-                  <span>EW Jamming Beacon: DBO Air Corridor</span>
-                  <span className="text-[10px] font-mono">16,614 ft</span>
+              <div className="p-3.5 rounded-lg bg-[#12141a] border border-zinc-800/80 text-zinc-300 space-y-1">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-300"></span>
+                    <span>EW Jamming Beacon: DBO Air Corridor</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                    16,614 ft &bull; EW WARNING
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Hostile electronic warfare sniffing detected. SecAgg+ zero-knowledge masking activated; bare weights suppressed.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-slate-300 space-y-1">
-                <div className="font-bold text-emerald-400 flex items-center justify-between">
-                  <span>Advance Winter Stocking: 14 Corps Leh</span>
-                  <span className="text-[10px] font-mono">98.2% Accuracy</span>
+              <div className="p-3.5 rounded-lg bg-[#12141a] border border-zinc-800/80 text-zinc-300 space-y-1">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                    <span>Advance Winter Stocking: 14 Corps Leh</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                    AWS SYNC &bull; 98.2%
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Federated GRU completed multi-round consensus. Ammunition safety stock buffer calibrated for 5-month isolation.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-800/60 text-slate-300 space-y-1">
-                <div className="font-bold text-amber-400 flex items-center justify-between">
-                  <span>Khardung La Wind Advisory</span>
-                  <span className="text-[10px] font-mono">17,982 ft</span>
+              <div className="p-3.5 rounded-lg bg-[#12141a] border border-zinc-800/80 text-zinc-300 space-y-1">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                    <span>Khardung La Wind Advisory</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                    17,982 ft &bull; ADVISORY
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Sustained 65 km/h crosswinds. UAV vertical lift operations suspended until wind speed drops below 45 km/h threshold.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/60 text-slate-300 space-y-1">
-                <div className="font-bold text-rose-400 flex items-center justify-between">
-                  <span>DBO Ration Stock Critical</span>
-                  <span className="text-[10px] font-mono">22 days left</span>
+              <div className="p-3.5 rounded-lg bg-[#12141a] border border-zinc-800/80 text-zinc-300 space-y-1">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    <span>DBO Ration Stock Critical</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                    22 DAYS &bull; DEPLETION
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Forward post rations below 30-day threshold. Emergency drone resupply sortie from Diskit Hub queued.
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-[#1e222d]">
+            <div className="flex justify-end pt-3 border-t border-zinc-800">
               <button
                 onClick={() => setIsAlertsOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-white text-slate-950 font-bold hover:bg-slate-200 transition-colors cursor-pointer text-xs"
+                className="px-4 py-1.5 rounded-lg bg-white text-slate-950 font-bold hover:bg-zinc-200 transition-colors cursor-pointer text-xs shadow-sm"
               >
                 Acknowledge All
               </button>
