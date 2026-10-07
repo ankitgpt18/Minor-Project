@@ -93,17 +93,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           </div>
         </div>
 
-        {/* EMCON Tactical Silence Mode Toggle */}
+        {/* EMCON Tactical Silence Mode Toggle (Monochrome Grey/White) */}
         <button
           onClick={onToggleEmcon}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold cursor-pointer transition-colors ${
             isEmcon
-              ? 'bg-amber-950/70 text-amber-300 border-amber-700/80 shadow-sm'
-              : 'bg-[#151820] text-slate-300 hover:text-white border-[#232835]'
+              ? 'bg-zinc-800 text-white border-zinc-500 shadow-sm'
+              : 'bg-[#151820] text-zinc-400 hover:text-white border-[#232835]'
           }`}
           title={isEmcon ? 'EMCON Silence Active: Radio emissions suppressed, FL updates queued to local SQLite memory' : 'EMCON Inactive: P2P radio transmission open'}
         >
-          <Radio className={`w-3.5 h-3.5 ${isEmcon ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`} />
+          <Radio className={`w-3.5 h-3.5 ${isEmcon ? 'text-white' : 'text-zinc-500'}`} />
           <span className="hidden lg:inline">{isEmcon ? 'EMCON: SILENCE' : 'EMCON: OPEN'}</span>
         </button>
 
