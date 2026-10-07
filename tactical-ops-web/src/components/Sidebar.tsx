@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   LayoutDashboard,
   Map as MapIcon,
@@ -6,7 +5,8 @@ import {
   Navigation,
   ShieldAlert,
   ChevronLeft,
-  BookOpen
+  BookOpen,
+  LogOut
 } from 'lucide-react';
 
 export type NavView =
@@ -23,6 +23,8 @@ interface SidebarProps {
   onToggleCollapse: () => void;
   unreadAlertsCount?: number;
   onOpenDocs?: () => void;
+  currentUser?: string;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -31,7 +33,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
   unreadAlertsCount = 7,
-  onOpenDocs
+  onOpenDocs,
+  currentUser = 'Duty Logistics Officer',
+  onLogout
 }) => {
   return (
     <aside
@@ -196,13 +200,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onOpenDocs}
             className={`w-full flex items-center ${
               isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'
-            } py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-[#141720] transition-all cursor-pointer`}
+            } py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-[#141720] transition-all cursor-pointer`}
             title="System Architecture & Docs"
           >
             <BookOpen className="w-4 h-4 shrink-0 text-slate-400" />
             {!isCollapsed && <span>Architecture & Specs</span>}
           </button>
         </div>
+
+        {/* SECTION 5: AUTHENTICATED USER SESSION & SIGN OUT */}
+        {onLogout && (
+          <div className="pt-2 border-t border-[#1e222d]/60">
+            {isCollapsed ? (
+              <button
+                onClick={onLogout}
+                className="w-full flex items-center justify-center py-2 text-zinc-500 hover:text-white hover:bg-[#141720] rounded-lg transition-colors cursor-pointer"
+                title={`Signed in as: ${currentUser} (Click to Sign Out)`}
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            ) : (
+              <div className="flex items-center justify-between px-3 py-2 bg-[#090b0e] border border-[#1a1e28] rounded-lg">
+                <div className="truncate mr-2">
+                  <div className="text-[11px] font-semibold text-white truncate">{currentUser}</div>
+                  <div className="text-[9px] text-zinc-500 font-mono">OPSEC Level 1</div>
+                </div>
+                <button
+                  onClick={onLogout}
+                  className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );
