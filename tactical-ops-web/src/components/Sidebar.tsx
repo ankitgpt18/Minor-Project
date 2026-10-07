@@ -6,7 +6,8 @@ import {
   ShieldAlert,
   ChevronLeft,
   BookOpen,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 
 export type NavView =
@@ -208,32 +209,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* SECTION 5: AUTHENTICATED USER SESSION & SIGN OUT */}
+        {/* SECTION 5: ACCOUNT */}
         {onLogout && (
-          <div className="pt-2 border-t border-[#1e222d]/60">
-            {isCollapsed ? (
-              <button
-                onClick={onLogout}
-                className="w-full flex items-center justify-center py-2 text-zinc-500 hover:text-white hover:bg-[#141720] rounded-lg transition-colors cursor-pointer"
-                title={`Signed in as: ${currentUser} (Click to Sign Out)`}
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            ) : (
-              <div className="flex items-center justify-between px-3 py-2 bg-[#090b0e] border border-[#1a1e28] rounded-lg">
-                <div className="truncate mr-2">
-                  <div className="text-[11px] font-semibold text-white truncate">{currentUser}</div>
-                  <div className="text-[9px] text-zinc-500 font-mono">OPSEC Level 1</div>
-                </div>
-                <button
-                  onClick={onLogout}
-                  className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
-                  title="Sign Out"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
+          <div className="space-y-1 pt-2 border-t border-[#1e222d]/60">
+            {!isCollapsed && (
+              <div className="px-3 text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
+                Account
               </div>
             )}
+            <button
+              onClick={onLogout}
+              className={`w-full flex items-center justify-between ${
+                isCollapsed ? 'justify-center px-0' : 'px-3'
+              } py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-[#141720] transition-all cursor-pointer group`}
+              title={`${currentUser} (Click to Sign Out)`}
+            >
+              <div className="flex items-center gap-3 truncate mr-1.5">
+                <User className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-white transition-colors" />
+                {!isCollapsed && <span className="font-semibold text-slate-200 truncate">{currentUser}</span>}
+              </div>
+              {!isCollapsed && (
+                <LogOut className="w-3.5 h-3.5 shrink-0 text-slate-500 group-hover:text-white transition-colors" />
+              )}
+            </button>
           </div>
         )}
       </div>

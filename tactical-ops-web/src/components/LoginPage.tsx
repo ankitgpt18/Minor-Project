@@ -68,7 +68,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <div className="space-y-2.5">
             {/* Provider 1: Continue with Google (with Last Used badge) */}
             <button
-              onClick={() => onLogin('Ankit Gupta (Google Account)')}
+              onClick={() => onLogin('Ankit Gupta')}
               className="w-full relative flex items-center justify-center gap-2.5 bg-[#0a0a0a] hover:bg-[#141414] border border-[#222222] hover:border-zinc-600 text-zinc-200 hover:text-white py-2.5 px-4 rounded-lg text-xs font-medium transition-colors cursor-pointer"
             >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             {/* Provider 2: GitHub Developer SSO */}
             <button
-              onClick={() => onLogin('ankitgpt18 (GitHub Verified)')}
+              onClick={() => onLogin('ankitgpt18')}
               className="w-full flex items-center justify-center gap-2.5 bg-[#0a0a0a] hover:bg-[#141414] border border-[#222222] hover:border-zinc-600 text-zinc-200 hover:text-white py-2.5 px-4 rounded-lg text-xs font-medium transition-colors cursor-pointer"
             >
               <svg className="w-4 h-4 fill-zinc-300 shrink-0" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             {/* Provider 3: Service Net SAML SSO */}
             <button
-              onClick={() => onLogin('Col. Logistics Directorate (HQ)')}
+              onClick={() => onLogin('Col. Logistics Directorate')}
               className="w-full flex items-center justify-center gap-2.5 bg-[#0a0a0a] hover:bg-[#141414] border border-[#222222] hover:border-zinc-600 text-zinc-200 hover:text-white py-2.5 px-4 rounded-lg text-xs font-medium transition-colors cursor-pointer"
             >
               <Lock className="w-4 h-4 text-zinc-400 shrink-0" />
@@ -118,7 +118,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             {/* Provider 4: Hardware Passkey / FIDO2 */}
             <button
-              onClick={() => onLogin('Tactical Edge Station (DBO Post)')}
+              onClick={() => onLogin('Tactical Edge Station')}
               className="w-full flex items-center justify-center gap-2.5 bg-[#0a0a0a] hover:bg-[#141414] border border-[#222222] hover:border-zinc-600 text-zinc-200 hover:text-white py-2.5 px-4 rounded-lg text-xs font-medium transition-colors cursor-pointer"
             >
               <Fingerprint className="w-4 h-4 text-zinc-400 shrink-0" />

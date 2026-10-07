@@ -19,9 +19,8 @@ export const App: React.FC = () => {
     return localStorage.getItem('tandem_auth') === 'true';
   });
   const [currentUser, setCurrentUser] = useState<string>(() => {
-    return localStorage.getItem('tandem_user') || 'Maj. Ankit Gupta (14 Corps Log)';
+    return localStorage.getItem('tandem_user') || 'Ankit Gupta';
   });
-  const [showWelcomeToast, setShowWelcomeToast] = useState<boolean>(false);
 
   const [currentView, setCurrentView] = useState<NavView>('EXECUTIVE_DASHBOARD');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -59,10 +58,6 @@ export const App: React.FC = () => {
     setIsAuthenticated(true);
     localStorage.setItem('tandem_auth', 'true');
     localStorage.setItem('tandem_user', userName);
-    setShowWelcomeToast(true);
-    setTimeout(() => {
-      setShowWelcomeToast(false);
-    }, 2800);
   };
 
   const handleLogout = () => {
@@ -77,19 +72,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0a0b0e] text-slate-100 font-sans">
-      {/* Smooth Entrance Welcome Toast Notification */}
-      {showWelcomeToast && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[3000] flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#0e1015]/95 border border-zinc-700 text-white shadow-2xl backdrop-blur-md select-none transition-all duration-500">
-          <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs shrink-0">
-            ✓
-          </div>
-          <div>
-            <div className="font-bold text-xs text-white">Welcome, {currentUser}!</div>
-            <div className="text-[10px] text-zinc-400 font-mono">OPSEC Clearance Verified &bull; Defense Session Active</div>
-          </div>
-        </div>
-      )}
-
       {/* Left Sidebar Navigation */}
       <Sidebar
         currentView={currentView}
