@@ -4,7 +4,6 @@ import L from 'leaflet';
 import { SECTORS, PASSES, CORRIDORS } from '../data/sectorsData';
 import type { SectorDepot, StrategicPass } from '../data/sectorsData';
 import {
-  Sun,
   Moon,
   Satellite,
   Eye,
@@ -202,7 +201,7 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
   activeSector,
   onSelectSector
 }) => {
-  const [mapStyle, setMapStyle] = useState<'DARK' | 'SATELLITE' | 'LIGHT'>('DARK');
+  const [mapStyle, setMapStyle] = useState<'DARK' | 'SATELLITE'>('DARK');
   const [showLegend, setShowLegend] = useState<boolean>(true);
 
   const getTileUrl = () => {
@@ -213,9 +212,8 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
   };
 
   const getTileClass = () => {
-    if (mapStyle === 'DARK') return 'leaflet-dark-tiles';
     if (mapStyle === 'SATELLITE') return 'leaflet-satellite-tiles';
-    return 'leaflet-light-tiles';
+    return 'leaflet-dark-tiles';
   };
 
   const activeCorridorIds = CORRIDORS
@@ -232,7 +230,7 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
         </div>
       </div>
 
-      {/* Top Right Map Mode Switchers */}
+      {/* Top Right Map Mode Switchers (Monochrome Dark GIS & Satellite HD Only) */}
       <div className="absolute top-4 right-5 z-[400] flex items-center gap-2">
         <div className="bg-[#0e1015]/95 backdrop-blur-md border border-[#1e222d] rounded-lg p-1 flex items-center gap-1 shadow-xl select-none">
           <button
@@ -257,18 +255,6 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
           >
             <Satellite className="w-3.5 h-3.5" />
             <span>Satellite HD</span>
-          </button>
-
-          <button
-            onClick={() => setMapStyle('LIGHT')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
-              mapStyle === 'LIGHT'
-                ? 'bg-white text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Sun className="w-3.5 h-3.5 text-amber-500" />
-            <span>Light</span>
           </button>
         </div>
 
@@ -411,12 +397,29 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
                     <div>Local Loss: <span className="text-slate-200 font-mono">{sector.localLoss}</span></div>
                     <div>Lead Time MAE: <span className="text-slate-200 font-mono font-bold">{sector.localMaeHours}h</span></div>
                   </div>
-                  <button
-                    onClick={() => onSelectSector(sector.id)}
-                    className="w-full mt-2 py-1.5 rounded bg-white text-slate-950 font-bold hover:bg-slate-200 transition-colors cursor-pointer text-xs"
-                  >
-                    Select Operational Node
-                  </button>
+
+                  {isSelected ? (
+                    <div className="w-full mt-2.5 py-1.5 px-2 rounded bg-zinc-800 border border-zinc-700 text-white font-mono font-bold text-center text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                      <span>ACTIVE OPERATIONAL BASE</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onSelectSector(sector.id);
+                      }}
+                      className="w-full mt-2.5 py-1.5 rounded bg-white text-slate-950 font-bold hover:bg-zinc-200 transition-colors cursor-pointer text-xs shadow-sm flex items-center justify-center gap-1"
+                    >
+                      <span>Set as Active Operational Base</span>
+                    </button>
+                  )}
+                  <div className="text-[10px] text-zinc-400 text-center mt-1">
+                    {isSelected
+                      ? 'Controls all supply corridors & demand forecasts'
+                      : 'Click to route all supply corridors from this hub'}
+                  </div>
                 </div>
               </Popup>
             </Marker>
@@ -424,24 +427,24 @@ export const InteractiveTacticalMapView: React.FC<InteractiveTacticalMapViewProp
         })}
       </MapContainer>
 
-      {/* Bottom Left Legend Box */}
+      {/* Bottom Left Legend Box - Lifted above EMCON footer & Monochrome Styled */}
       {showLegend && (
-        <div className="absolute bottom-6 left-6 z-[400] bg-[#0e1015]/95 backdrop-blur-md border border-[#1e222d] rounded-xl p-4 shadow-2xl text-xs space-y-2.5 min-w-[230px] select-none">
-          <div className="font-bold text-[11px] uppercase tracking-wider text-slate-300 pb-1 border-b border-[#1e222d]">
+        <div className="absolute bottom-12 left-6 z-[400] bg-[#0e1015]/95 backdrop-blur-md border border-[#1e222d] rounded-xl p-3.5 shadow-2xl text-xs space-y-2 min-w-[240px] select-none">
+          <div className="font-bold text-[10px] uppercase tracking-wider text-zinc-400 pb-1 border-b border-[#1e222d]">
             TAC-ROUTE NAVIGABILITY LEGEND
           </div>
-          <div className="space-y-2 text-[11px] text-slate-300">
+          <div className="space-y-1.5 text-[11px] text-zinc-300">
             <div className="flex items-center gap-2.5">
-              <span className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(56,189,248,0.8)] shrink-0"></span>
-              <span>Active Navigable Corridor (Score &ge; 85%)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)] shrink-0"></span>
+              <span>Active Navigable Corridor (&ge; 85%)</span>
             </div>
             <div className="flex items-center gap-2.5">
-              <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
-              <span>Conditional (60% - 84% Snow Risk)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-400 border border-zinc-500 shrink-0"></span>
+              <span>Conditional (60% - 84% Wind/Drag)</span>
             </div>
             <div className="flex items-center gap-2.5">
-              <span className="w-3 h-3 rounded-full bg-rose-500 shrink-0"></span>
-              <span>Non-Navigable (Avalanche Blockage)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-700 border border-zinc-600 shrink-0"></span>
+              <span>Non-Navigable (Pass Avalanche Block)</span>
             </div>
           </div>
         </div>

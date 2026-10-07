@@ -125,3 +125,9 @@ body {
   transform: translate(-50%, 0) !important;
   z-index: 2000 !important;
 }
+
+/* Lift Leaflet bottom controls above the telemetry console footer */
+.leaflet-bottom {
+  bottom: 44px !important;
+}
+

@@ -70,7 +70,6 @@ export const App: React.FC = () => {
           isRefreshing={isRefreshing}
           onOpenAlerts={() => setIsAlertsOpen(true)}
           unreadAlertsCount={alertCount}
-          onOpenDocs={() => setIsDocsOpen(true)}
           onOpenExport={() => setIsExportOpen(true)}
           isEmcon={isEmcon}
           onToggleEmcon={() => setIsEmcon(!isEmcon)}
