@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SectorDepot } from '../data/sectorsData';
-import { LONGITUDINAL_ELEVATION_PROFILE } from '../data/sectorsData';
+import { CORRIDORS, PASSES } from '../data/sectorsData';
 import {
   Navigation,
   Waves,
@@ -26,17 +26,138 @@ interface ExecutiveDashboardViewProps {
   activeSector: SectorDepot;
 }
 
+// Dynamic elevation profile generator per sector
+const getSectorElevationProfile = (sectorId: string) => {
+  switch (sectorId) {
+    case 'sec-dbo':
+      return [
+        { km: 0, distance: '0 km', elevationM: 3500, targetAltitude: 4500, passLabel: 'Leh Base (3,500m)' },
+        { km: 78, distance: '78 km', elevationM: 5359, targetAltitude: 4500, passLabel: 'Khardung La Pass (5,359m)' },
+        { km: 118, distance: '118 km', elevationM: 3144, targetAltitude: 4500, passLabel: 'Diskit Drone Hub' },
+        { km: 165, distance: '165 km', elevationM: 4100, targetAltitude: 4500, passLabel: 'Shyok River Confluence' },
+        { km: 210, distance: '210 km', elevationM: 4700, targetAltitude: 4500, passLabel: 'Murgo Staging Point' },
+        { km: 258, distance: '258 km', elevationM: 5064, targetAltitude: 4500, passLabel: 'DBO Airfield (5,064m)' }
+      ];
+    case 'sec-kargil':
+      return [
+        { km: 0, distance: '0 km', elevationM: 2676, targetAltitude: 4500, passLabel: 'Kargil Base (2,676m)' },
+        { km: 55, distance: '55 km', elevationM: 3700, targetAltitude: 4500, passLabel: 'Namika La Pass (3,700m)' },
+        { km: 110, distance: '110 km', elevationM: 4108, targetAltitude: 4500, passLabel: 'Fotu La Pass (4,108m)' },
+        { km: 165, distance: '165 km', elevationM: 3150, targetAltitude: 4500, passLabel: 'Lamayuru Plateau' },
+        { km: 216, distance: '216 km', elevationM: 3524, targetAltitude: 4500, passLabel: 'Leh Logistics Hub (3,524m)' }
+      ];
+    case 'sec-nyoma':
+      return [
+        { km: 0, distance: '0 km', elevationM: 3500, targetAltitude: 4500, passLabel: 'Leh Base (3,500m)' },
+        { km: 48, distance: '48 km', elevationM: 3600, targetAltitude: 4500, passLabel: 'Upshi Strategic Junction' },
+        { km: 105, distance: '105 km', elevationM: 4020, targetAltitude: 4500, passLabel: 'Chumathang Thermal Camp' },
+        { km: 150, distance: '150 km', elevationM: 4200, targetAltitude: 4500, passLabel: 'Mahe Bridge Checkpoint' },
+        { km: 182, distance: '182 km', elevationM: 4180, targetAltitude: 4500, passLabel: 'Nyoma Advanced Depot (4,180m)' }
+      ];
+    case 'sec-diskit':
+      return [
+        { km: 0, distance: '0 km', elevationM: 3500, targetAltitude: 4500, passLabel: 'Leh Airhead (3,500m)' },
+        { km: 42, distance: '42 km', elevationM: 4600, targetAltitude: 4500, passLabel: 'South Pullu' },
+        { km: 78, distance: '78 km', elevationM: 5359, targetAltitude: 4500, passLabel: 'Khardung La (5,359m)' },
+        { km: 100, distance: '100 km', elevationM: 4200, targetAltitude: 4500, passLabel: 'North Pullu' },
+        { km: 118, distance: '118 km', elevationM: 3144, targetAltitude: 4500, passLabel: 'Diskit Drone Hub (3,144m)' }
+      ];
+    case 'sec-leh':
+    default:
+      return [
+        { km: 0, distance: '0 km', elevationM: 3500, targetAltitude: 4500, passLabel: 'Leh Staging (3,500m)' },
+        { km: 45, distance: '45 km', elevationM: 3200, targetAltitude: 4500, passLabel: 'Khaltsi Bridge' },
+        { km: 90, distance: '90 km', elevationM: 4108, targetAltitude: 4500, passLabel: 'Fotu La Pass (4,108m)' },
+        { km: 150, distance: '150 km', elevationM: 3100, targetAltitude: 4500, passLabel: 'Mulbekh' },
+        { km: 216, distance: '216 km', elevationM: 2676, targetAltitude: 4500, passLabel: 'Kargil Division Base (2,676m)' }
+      ];
+  }
+};
+
+// Dynamic dispatch queues per sector
+const getSectorDispatchQueue = (sectorId: string) => {
+  switch (sectorId) {
+    case 'sec-dbo':
+      return [
+        { title: 'Sub-Zero Drone Battery Sortie', route: 'Diskit Hub to DBO Advance Post', status: 'EN ROUTE', statusColor: 'text-amber-400' },
+        { title: 'Emergency DFRL High-Calorie Rations', route: 'Forward Air-Drop via Siachen Sector', status: 'QUEUED', statusColor: 'text-slate-400' }
+      ];
+    case 'sec-kargil':
+      return [
+        { title: '155mm Heavy Shells Road Convoy', route: 'Leh Central Ordnance to 8 Mtn Div', status: 'EN ROUTE', statusColor: 'text-amber-400' },
+        { title: 'Winter XWG Diesel Tanker Sortie', route: 'Zojila Axis to Dras Logistics Depot', status: 'QUEUED', statusColor: 'text-slate-400' }
+      ];
+    case 'sec-nyoma':
+      return [
+        { title: 'Thermal Engine Preheat Spares Convoy', route: 'Upshi Strategic Junction to Nyoma', status: 'EN ROUTE', statusColor: 'text-amber-400' },
+        { title: 'Pangong South Munitions Buffer Sortie', route: 'Chumathang to Chushul Post', status: 'QUEUED', statusColor: 'text-slate-400' }
+      ];
+    case 'sec-diskit':
+      return [
+        { title: 'UAV Rotor Replacement & Avionics Sortie', route: 'Diskit Autonomous Hub to Panamik', status: 'EN ROUTE', statusColor: 'text-amber-400' },
+        { title: 'Cold-Rated LiPo Recharge Sortie', route: 'Nubra Perimeter to Forward Heli-Pad', status: 'QUEUED', statusColor: 'text-slate-400' }
+      ];
+    case 'sec-leh':
+    default:
+      return [
+        { title: 'Advance Winter Stocking Central Aggregation', route: 'Northern Command to 14 Corps Base', status: 'EN ROUTE', statusColor: 'text-amber-400' },
+        { title: 'High-Altitude Medical Evacuation Sortie', route: 'Command Hospital Leh to Forward Sectors', status: 'QUEUED', statusColor: 'text-slate-400' }
+      ];
+  }
+};
+
 export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
   activeSector
 }) => {
+  // 1. CALCULATIVE NAVIGABILITY SCORE
+  const connectedCorridors = CORRIDORS.filter(
+    (c) => c.fromId === activeSector.id || c.toId === activeSector.id
+  );
+  const avgCorridorNav = connectedCorridors.length > 0
+    ? connectedCorridors.reduce((acc, c) => acc + c.navigabilityPct, 0) / connectedCorridors.length
+    : 90.0;
+  
+  const navigabilityScore = +(
+    avgCorridorNav -
+    (activeSector.isJammed ? 6.5 : 0) -
+    (activeSector.status === 'CRITICAL' ? 14.0 : 0)
+  ).toFixed(1);
+
+  const navigabilityDelta = navigabilityScore >= 90 ? '+3.8%' : navigabilityScore >= 80 ? '+1.2%' : '-12.8%';
+
+  // 2. CALCULATIVE NAVIGABLE REACH
+  const navigableReachKm = connectedCorridors.reduce((acc, c) => acc + c.distanceKm, 0);
+  const navigableReachDelta = activeSector.status === 'CRITICAL' ? '-14%' : activeSector.isJammed ? '-5%' : '+8%';
+
+  // 3. CALCULATIVE ACTIVE RISK WARNINGS
+  let warningCount = 0;
+  if (activeSector.isJammed) warningCount += 2;
+  if (activeSector.isCompromised) warningCount += 2;
+  if (activeSector.stockLevel.dfrlRationsDays < 40) warningCount += 2;
+  if (activeSector.altitudeFt > 15000) warningCount += 1;
+  if (activeSector.status === 'JAMMED') warningCount += 1;
+  warningCount += PASSES.filter((p) => p.status === 'ALERT' || p.status === 'BLOCKED').length;
+  if (activeSector.id === 'sec-dbo' || activeSector.id === 'sec-diskit') warningCount += 1; // Sasser Pass threat
+  const finalWarningCount = Math.max(1, warningCount);
+
+  // 4. CALCULATIVE SAFETY INDEX
+  const rawSafety = 1.0 - (activeSector.localLoss * 0.8) - (activeSector.isJammed ? 0.08 : 0) - (activeSector.isCompromised ? 0.15 : 0) - (activeSector.stockLevel.dfrlRationsDays < 30 ? 0.07 : 0);
+  const safetyIndex = Math.max(0.65, Math.min(0.99, +rawSafety.toFixed(2)));
+  const safetyDelta = safetyIndex >= 0.9 ? '+2.1%' : safetyIndex >= 0.8 ? '+0.4%' : '-6.5%';
+
+  // Dynamic elevation profile & dispatch queue for active sector
+  const elevationProfileData = getSectorElevationProfile(activeSector.id);
+  const totalCorridorKm = elevationProfileData[elevationProfileData.length - 1].km;
+  const dispatchQueue = getSectorDispatchQueue(activeSector.id);
+
   const stockBarData = [
     {
-      item: '155mm Heavy Shells (x10)',
+      item: '155mm Shells (x10)',
       Current: Math.round(activeSector.stockLevel.artillery155mm / 10),
       Predicted30D: Math.round(activeSector.predicted30D.artillery155mm / 10)
     },
     {
-      item: 'Winter Diesel XWG (KL)',
+      item: 'Winter Diesel (KL)',
       Current: activeSector.stockLevel.winterDieselKL,
       Predicted30D: activeSector.predicted30D.winterDieselKL
     },
@@ -46,7 +167,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
       Predicted30D: activeSector.predicted30D.dfrlRationsDays
     },
     {
-      item: 'Cold Drone Cells',
+      item: 'Drone Cells',
       Current: activeSector.stockLevel.droneBatteryCells,
       Predicted30D: activeSector.predicted30D.droneBatteryCells
     }
@@ -54,7 +175,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
 
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto overflow-y-auto">
-      {/* 4 Primary KPI Cards (Clean Dark Palette matching InlandRoute) */}
+      {/* 4 Primary KPI Cards (Fully Calculative per active sector) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* CARD 1: NAVIGABILITY SCORE */}
         <div className="bg-[#12141a] border border-[#1e222d] rounded-xl p-4.5 space-y-2 relative overflow-hidden">
@@ -65,9 +186,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">100.0%</span>
+            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">{navigabilityScore}%</span>
             <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-3 h-3" /> +4.5%
+              {navigabilityDelta.startsWith('+') ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
+              {navigabilityDelta}
             </span>
           </div>
           <p className="text-[11px] text-slate-400 leading-normal">
@@ -84,13 +206,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">216 km</span>
+            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">{navigableReachKm} km</span>
             <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-3 h-3" /> +12%
+              {navigableReachDelta.startsWith('+') ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
+              {navigableReachDelta}
             </span>
           </div>
           <p className="text-[11px] text-slate-400 leading-normal">
-            Clear corridor &ge; 4.5m width requirement across mountain switchbacks this period
+            Operational corridor &ge; 4.5m width requirement across {activeSector.shortCode} approaches
           </p>
         </div>
 
@@ -103,13 +226,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">7</span>
+            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">{finalWarningCount}</span>
             <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-              <TrendingDown className="w-3 h-3" /> -15%
+              {finalWarningCount <= 2 ? <TrendingDown className="w-3 h-3 text-emerald-400" /> : <TrendingUp className="w-3 h-3 text-amber-400" />}
+              {finalWarningCount <= 2 ? 'Low Threat' : 'Elevated'}
             </span>
           </div>
           <p className="text-[11px] text-slate-400 leading-normal">
-            Snow-drift bottlenecks & RF electronic jamming spots flagged this period
+            Snow-drift bottlenecks, RF jamming & sub-zero risks flagged for {activeSector.shortCode}
           </p>
         </div>
 
@@ -122,13 +246,14 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">0.94</span>
+            <span className="text-3xl font-extrabold text-white font-mono tracking-tight">{safetyIndex}</span>
             <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-3 h-3" /> +2.1%
+              {safetyDelta.startsWith('+') ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
+              {safetyDelta}
             </span>
           </div>
           <p className="text-[11px] text-slate-400 leading-normal">
-            Clustered FL + ST-GNN prediction confidence score across forward sector outposts
+            Clustered FL + ST-GNN prediction confidence score across {activeSector.shortCode} forward outposts
           </p>
         </div>
       </div>
@@ -139,7 +264,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
           <div>
             <h2 className="text-sm font-bold text-white">Longitudinal Frontier Elevation Profile</h2>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Terrain elevation gradient along {activeSector.shortCode} reach (258 km corridor)
+              Terrain elevation gradient along {activeSector.shortCode} approach corridor ({totalCorridorKm} km transit span)
             </p>
           </div>
           <div className="flex items-center gap-4 text-xs">
@@ -157,7 +282,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
         {/* Recharts Area Profile */}
         <div className="w-full h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={LONGITUDINAL_ELEVATION_PROFILE} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
+            <AreaChart data={elevationProfileData} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="elevationGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.35} />
@@ -200,7 +325,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             <div>
               <h3 className="text-sm font-bold text-white">Critical Combat Reserve vs. 30-Day Demand Forecast</h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                On-device federated demand predictions across munitions, fuel, rations, and drone battery banks
+                On-device federated demand predictions across munitions, fuel, rations, and drone battery banks at {activeSector.shortCode}
               </p>
             </div>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
@@ -268,21 +393,15 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </div>
             
             <div className="space-y-2 text-[11px]">
-              <div className="p-2 rounded bg-[#11131a] border border-[#1e2330] flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-slate-200">155mm Artillery Resupply Sortie</div>
-                  <div className="text-[10px] text-slate-500">Route: Leh Base to {activeSector.name.split(' (')[0]}</div>
+              {dispatchQueue.map((item, idx) => (
+                <div key={idx} className="p-2 rounded bg-[#11131a] border border-[#1e2330] flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-slate-200">{item.title}</div>
+                    <div className="text-[10px] text-slate-500">{item.route}</div>
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold ${item.statusColor}`}>{item.status}</span>
                 </div>
-                <span className="text-[10px] font-mono font-bold text-amber-400">EN ROUTE</span>
-              </div>
-
-              <div className="p-2 rounded bg-[#11131a] border border-[#1e2330] flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-slate-200">Winterized High-Calorie Rations</div>
-                  <div className="text-[10px] text-slate-500">Buffer: 30-Day Forward Allocation</div>
-                </div>
-                <span className="text-[10px] font-mono font-bold text-slate-400">QUEUED</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>

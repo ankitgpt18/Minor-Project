@@ -52,14 +52,56 @@ const convergenceData = [
   { round: 'R15', BaselineIsolated: 2.85, VanillaFedAvg: 1.60, HardenedFL: 1.38 },
 ];
 
-const threatRadarData = [
-  { axis: 'Avalanche', value: 72 },
-  { axis: 'EW Jamming', value: 58 },
-  { axis: 'Supply Cut', value: 45 },
-  { axis: 'Byzantine Node', value: 15 },
-  { axis: 'Gradient Leak', value: 8 },
-  { axis: 'Road Damage', value: 35 },
-];
+const getSectorThreatRadar = (sector: SectorDepot) => {
+  switch (sector.id) {
+    case 'sec-dbo':
+      return [
+        { axis: 'Avalanche', value: 88 },
+        { axis: 'EW Jamming', value: 94 },
+        { axis: 'Supply Cut', value: 82 },
+        { axis: 'Byzantine Node', value: 24 },
+        { axis: 'Gradient Leak', value: 12 },
+        { axis: 'Road Damage', value: 65 },
+      ];
+    case 'sec-kargil':
+      return [
+        { axis: 'Avalanche', value: 58 },
+        { axis: 'EW Jamming', value: 34 },
+        { axis: 'Supply Cut', value: 38 },
+        { axis: 'Byzantine Node', value: 10 },
+        { axis: 'Gradient Leak', value: 6 },
+        { axis: 'Road Damage', value: 76 },
+      ];
+    case 'sec-nyoma':
+      return [
+        { axis: 'Avalanche', value: 46 },
+        { axis: 'EW Jamming', value: 52 },
+        { axis: 'Supply Cut', value: 56 },
+        { axis: 'Byzantine Node', value: 14 },
+        { axis: 'Gradient Leak', value: 8 },
+        { axis: 'Road Damage', value: 44 },
+      ];
+    case 'sec-diskit':
+      return [
+        { axis: 'Avalanche', value: 74 },
+        { axis: 'EW Jamming', value: 66 },
+        { axis: 'Supply Cut', value: 48 },
+        { axis: 'Byzantine Node', value: 12 },
+        { axis: 'Gradient Leak', value: 7 },
+        { axis: 'Road Damage', value: 46 },
+      ];
+    case 'sec-leh':
+    default:
+      return [
+        { axis: 'Avalanche', value: 24 },
+        { axis: 'EW Jamming', value: 18 },
+        { axis: 'Supply Cut', value: 22 },
+        { axis: 'Byzantine Node', value: 8 },
+        { axis: 'Gradient Leak', value: 5 },
+        { axis: 'Road Damage', value: 20 },
+      ];
+  }
+};
 
 interface PrivacyToggle {
   id: string;
@@ -257,7 +299,7 @@ export const RiskEarlyWarningView: React.FC<RiskEarlyWarningViewProps> = ({
           </div>
           <div className="w-full h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={threatRadarData} cx="50%" cy="50%" outerRadius="70%">
+              <RadarChart data={getSectorThreatRadar(activeSector)} cx="50%" cy="50%" outerRadius="70%">
                 <PolarGrid stroke="#1e222d" />
                 <PolarAngleAxis dataKey="axis" tick={{ fill: '#94a3b8', fontSize: 9 }} />
                 <PolarRadiusAxis tick={false} axisLine={false} />
@@ -338,9 +380,13 @@ export const RiskEarlyWarningView: React.FC<RiskEarlyWarningViewProps> = ({
               </tr>
             </thead>
             <tbody>
-              {SECTORS.map((s) => (
-                <tr key={s.id} className="border-b border-[#1e222d]/50 hover:bg-[#161922] transition-colors">
-                  <td className="py-2.5 px-3 font-medium text-slate-200">{s.shortCode}</td>
+              {SECTORS.map((s) => {
+                const isActive = s.id === activeSector.id;
+                return (
+                <tr key={s.id} className={`border-b border-[#1e222d]/50 transition-colors ${isActive ? 'bg-[#181d29] border-l-2 border-l-white' : 'hover:bg-[#161922]'}`}>
+                  <td className="py-2.5 px-3 font-medium text-slate-200">
+                    {s.shortCode} {isActive && <span className="text-[10px] text-cyan-400 font-mono ml-1.5">(ACTIVE)</span>}
+                  </td>
                   <td className="py-2.5 px-3 text-right text-slate-400">{s.cluster}</td>
                   <td className="py-2.5 px-3 text-right font-mono text-slate-300">{s.localLoss}</td>
                   <td className="py-2.5 px-3 text-right font-mono text-slate-200">{s.localMaeHours}h</td>
@@ -363,7 +409,8 @@ export const RiskEarlyWarningView: React.FC<RiskEarlyWarningViewProps> = ({
                     </span>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

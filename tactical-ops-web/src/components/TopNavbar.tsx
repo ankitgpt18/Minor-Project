@@ -1,10 +1,10 @@
-import React from 'react';
 import {
   RefreshCw,
   Bell,
   Download,
   Satellite,
-  BookOpen
+  BookOpen,
+  Radio
 } from 'lucide-react';
 import { SECTORS } from '../data/sectorsData';
 
@@ -21,6 +21,8 @@ interface TopNavbarProps {
   unreadAlertsCount: number;
   onOpenDocs?: () => void;
   onOpenExport?: () => void;
+  isEmcon: boolean;
+  onToggleEmcon: () => void;
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({
@@ -35,7 +37,9 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   onOpenAlerts,
   unreadAlertsCount,
   onOpenDocs,
-  onOpenExport
+  onOpenExport,
+  isEmcon,
+  onToggleEmcon
 }) => {
   return (
     <header className="h-16 px-4 bg-[#0e1015] border-b border-[#1e222d] flex items-center justify-between text-xs select-none sticky top-0 z-40">
@@ -63,28 +67,45 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
       <div className="flex items-center gap-2.5">
         {/* Sensor / Period Dropdown Pill */}
         <div className="hidden md:flex items-center gap-2 bg-[#151820] border border-[#232835] rounded-lg px-2.5 py-1.5 text-slate-300">
-          <Satellite className="w-3.5 h-3.5 text-slate-400" />
-          <span className="font-semibold text-slate-300">NASA DEM / IMD:</span>
-          <select
-            value={selectedMonth}
-            onChange={(e) => onChangeMonth(e.target.value)}
-            className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer"
-          >
-            <option value="September" className="bg-[#151820]">September</option>
-            <option value="October" className="bg-[#151820]">October</option>
-            <option value="November" className="bg-[#151820]">November (AWS Peak)</option>
-            <option value="December" className="bg-[#151820]">December (Sub-Zero)</option>
-            <option value="January" className="bg-[#151820]">January (Pass Freeze)</option>
-          </select>
-          <select
-            value={selectedYear}
-            onChange={(e) => onChangeYear(e.target.value)}
-            className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer"
-          >
-            <option value="2026" className="bg-[#151820]">2026</option>
-            <option value="2025" className="bg-[#151820]">2025</option>
-          </select>
+          <Satellite className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="font-semibold text-slate-300 text-[11px] whitespace-nowrap">NASA DEM / IMD:</span>
+          <div className="flex items-center gap-1">
+            <select
+              value={selectedMonth}
+              onChange={(e) => onChangeMonth(e.target.value)}
+              className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer py-0 px-0.5 border-0 text-xs"
+            >
+              <option value="September" className="bg-[#151820]">September</option>
+              <option value="October" className="bg-[#151820]">October</option>
+              <option value="November" className="bg-[#151820]">November (AWS Peak)</option>
+              <option value="December" className="bg-[#151820]">December (Sub-Zero)</option>
+              <option value="January" className="bg-[#151820]">January (Pass Freeze)</option>
+            </select>
+            <span className="text-slate-500 font-mono text-[11px]">/</span>
+            <select
+              value={selectedYear}
+              onChange={(e) => onChangeYear(e.target.value)}
+              className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer py-0 px-0.5 border-0 text-xs"
+            >
+              <option value="2026" className="bg-[#151820]">2026</option>
+              <option value="2025" className="bg-[#151820]">2025</option>
+            </select>
+          </div>
         </div>
+
+        {/* EMCON Tactical Silence Mode Toggle */}
+        <button
+          onClick={onToggleEmcon}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold cursor-pointer transition-colors ${
+            isEmcon
+              ? 'bg-amber-950/70 text-amber-300 border-amber-700/80 shadow-sm'
+              : 'bg-[#151820] text-slate-300 hover:text-white border-[#232835]'
+          }`}
+          title={isEmcon ? 'EMCON Silence Active: Radio emissions suppressed, FL updates queued to local SQLite memory' : 'EMCON Inactive: P2P radio transmission open'}
+        >
+          <Radio className={`w-3.5 h-3.5 ${isEmcon ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`} />
+          <span className="hidden lg:inline">{isEmcon ? 'EMCON: SILENCE' : 'EMCON: OPEN'}</span>
+        </button>
 
         {/* Sync / Refresh Button */}
         <button

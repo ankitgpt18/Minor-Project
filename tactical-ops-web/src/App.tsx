@@ -9,6 +9,7 @@ import { ConvoyPathfinderView } from './components/ConvoyPathfinderView';
 import { RiskEarlyWarningView } from './components/RiskEarlyWarningView';
 import { DocsModal } from './components/DocsModal';
 import { ExportModal } from './components/ExportModal';
+import { TelemetryConsole } from './components/TelemetryConsole';
 import { Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -21,8 +22,20 @@ export const App: React.FC = () => {
   const [isDocsOpen, setIsDocsOpen] = useState<boolean>(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
+  const [isEmcon, setIsEmcon] = useState<boolean>(false);
 
   const activeSector = SECTORS.find((s: SectorDepot) => s.id === activeSectorId) || SECTORS[0];
+
+  // Dynamic alert count based on active sector conditions
+  const alertCount = (() => {
+    let count = 2; // baseline: Sasser Pass blockage + AWS stocking notification
+    if (activeSector.isJammed) count += 2;
+    if (activeSector.isCompromised) count += 1;
+    if (activeSector.stockLevel.dfrlRationsDays < 40) count += 1;
+    if (activeSector.altitudeFt > 15000) count += 1;
+    if (activeSector.status === 'CRITICAL') count += 1;
+    return count;
+  })();
 
   const handleRefreshTelemetry = () => {
     setIsRefreshing(true);
@@ -39,7 +52,7 @@ export const App: React.FC = () => {
         onSelectView={setCurrentView}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        unreadAlertsCount={7}
+        unreadAlertsCount={alertCount}
         onOpenDocs={() => setIsDocsOpen(true)}
       />
 
@@ -56,13 +69,15 @@ export const App: React.FC = () => {
           onRefreshTelemetry={handleRefreshTelemetry}
           isRefreshing={isRefreshing}
           onOpenAlerts={() => setIsAlertsOpen(true)}
-          unreadAlertsCount={7}
+          unreadAlertsCount={alertCount}
           onOpenDocs={() => setIsDocsOpen(true)}
           onOpenExport={() => setIsExportOpen(true)}
+          isEmcon={isEmcon}
+          onToggleEmcon={() => setIsEmcon(!isEmcon)}
         />
 
         {/* View Router */}
-        <main className="flex-1 overflow-y-auto bg-[#0a0b0e]">
+        <main className="flex-1 overflow-y-auto bg-[#0a0b0e] pb-10">
           {currentView === 'EXECUTIVE_DASHBOARD' && (
             <ExecutiveDashboardView activeSector={activeSector} />
           )}
@@ -75,7 +90,11 @@ export const App: React.FC = () => {
           )}
 
           {currentView === 'CONSUMPTION_TRENDS' && (
-            <ConsumptionTrendsView activeSector={activeSector} />
+            <ConsumptionTrendsView
+              activeSector={activeSector}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+            />
           )}
 
           {currentView === 'CONVOY_PATHFINDER' && (
@@ -87,6 +106,13 @@ export const App: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Real-Time Live Telemetry Console Drawer */}
+      <TelemetryConsole
+        activeSector={activeSector}
+        isEmcon={isEmcon}
+        selectedMonth={selectedMonth}
+      />
 
       {/* Architecture Documentation Modal */}
       <DocsModal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
@@ -105,7 +131,7 @@ export const App: React.FC = () => {
             <div className="flex items-center justify-between border-b border-[#1e222d] pb-3">
               <span className="font-bold text-sm text-white flex items-center gap-2">
                 <Bell className="w-4 h-4 text-rose-400" />
-                <span>Tactical Operational Alerts (7 Active)</span>
+                <span>Tactical Operational Alerts ({alertCount} Active)</span>
               </span>
               <button
                 onClick={() => setIsAlertsOpen(false)}

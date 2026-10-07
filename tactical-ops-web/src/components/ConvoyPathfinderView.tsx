@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { SectorDepot } from '../data/sectorsData';
 import { SECTORS } from '../data/sectorsData';
 import {
@@ -125,6 +125,47 @@ const ROUTE_PRESETS: RoutePreset[] = [
       { stage: 'TRANSIT', name: 'Chang La Ridge Traverse', km: 92, altitudeFt: 17590, note: 'Radar Shadow Corridor' },
       { stage: 'DESTINATION', name: '3 Infantry Division Depot (Nyoma)', km: 195, altitudeFt: 13700, note: 'Pangong South Air Terminal' }
     ]
+  },
+  {
+    id: 'shyok-dbo',
+    name: 'Shyok - DBO Airbridge',
+    originId: 'sec-diskit',
+    destId: 'sec-dbo',
+    distanceKm: 165,
+    vehicle: 'DRDO 200kg Logistics Drone',
+    speedKmH: 50,
+    coordinates: [
+      [34.5428, 77.5619],
+      [34.7800, 77.7000],
+      [35.1200, 77.8500],
+      [35.4022, 77.9314]
+    ],
+    waypoints: [
+      { stage: 'ORIGIN', name: 'Nubra Valley Autonomous Drone Hub (Diskit)', km: 0, altitudeFt: 10315, note: 'Hangar VTOL Launch' },
+      { stage: 'TRANSIT', name: 'Shyok River Gorge Waypoint', km: 82, altitudeFt: 12500, note: 'Radar Terrain Masking' },
+      { stage: 'DESTINATION', name: 'Sub-Sector North Advance Post (DBO)', km: 165, altitudeFt: 16614, note: 'Terminal Airfield Landing' }
+    ]
+  },
+  {
+    id: 'kargil-axis',
+    name: 'Kargil - Dras Sector Trunk',
+    originId: 'sec-kargil',
+    destId: 'sec-leh',
+    distanceKm: 216,
+    vehicle: 'Ashok Leyland Stallion 10T',
+    speedKmH: 40,
+    coordinates: [
+      [34.5539, 76.1349],
+      [34.4500, 76.4000],
+      [34.3500, 76.8000],
+      [34.2250, 77.2000],
+      [34.1526, 77.5771]
+    ],
+    waypoints: [
+      { stage: 'ORIGIN', name: '8 Mountain Division Base (Kargil)', km: 0, altitudeFt: 8780, note: 'Division Central Ordnance Dispatch' },
+      { stage: 'TRANSIT', name: 'Fotu La Pass Crossing', km: 106, altitudeFt: 13478, note: 'High Pass Checkpoint' },
+      { stage: 'DESTINATION', name: '14 Corps Master Logistics Base (Leh)', km: 216, altitudeFt: 11562, note: 'Corps Central Reception' }
+    ]
   }
 ];
 
@@ -154,17 +195,35 @@ const createConvoyPinIcon = (isOrigin: boolean, isDest: boolean) => {
   });
 };
 
-export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = () => {
+export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = ({
+  activeSector
+}) => {
   const [selectedPresetId, setSelectedPresetId] = useState<string>('khardung-dbo');
-  const [originTerminal, setOriginTerminal] = useState<string>('sec-leh');
+  const [originTerminal, setOriginTerminal] = useState<string>(activeSector?.id || 'sec-leh');
   const [destinationPort, setDestinationPort] = useState<string>('sec-dbo');
   const [vehicleType, setVehicleType] = useState<string>('DRDO 200kg Logistics Drone');
   const [speedKmH, setSpeedKmH] = useState<number>(45);
   const [isDispatching, setIsDispatching] = useState<boolean>(false);
   const [dispatchedId, setDispatchedId] = useState<string | null>(null);
 
-  // Active preset or fallback
-  const activePreset = ROUTE_PRESETS.find((p) => p.id === selectedPresetId) || ROUTE_PRESETS[0];
+  // Sync with activeSector when user clicks sector in TopNavbar
+  useEffect(() => {
+    if (activeSector) {
+      setOriginTerminal(activeSector.id);
+      const matched = ROUTE_PRESETS.find((p) => p.originId === activeSector.id) ||
+                      ROUTE_PRESETS.find((p) => p.destId === activeSector.id);
+      if (matched) {
+        setSelectedPresetId(matched.id);
+        setDestinationPort(matched.originId === activeSector.id ? matched.destId : matched.originId);
+        setVehicleType(matched.vehicle);
+        setSpeedKmH(matched.speedKmH);
+      } else {
+        const fallbackDest = SECTORS.find((s) => s.id !== activeSector.id) || SECTORS[0];
+        setDestinationPort(fallbackDest.id);
+      }
+      setDispatchedId(null);
+    }
+  }, [activeSector?.id]);
 
   // Handle switching preset buttons
   const handleSelectPreset = (preset: RoutePreset) => {
@@ -191,10 +250,62 @@ export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = () => {
     if (matched) setSelectedPresetId(matched.id);
   };
 
-  // Calculations
-  const distanceKm = activePreset.distanceKm;
-  const transitHours = +(distanceKm / Math.max(15, speedKmH)).toFixed(1);
-  const fuelBurnLiters = Math.round(distanceKm * (vehicleType.includes('Drone') ? 0.22 : vehicleType.includes('Stallion') ? 0.65 : 0.42));
+  // Find direct preset or calculate dynamically
+  const directPreset = ROUTE_PRESETS.find(
+    (p) => (p.originId === originTerminal && p.destId === destinationPort) || p.id === selectedPresetId
+  );
+
+  const originDepot = SECTORS.find((s) => s.id === originTerminal) || SECTORS[0];
+  const destDepot = SECTORS.find((s) => s.id === destinationPort) || SECTORS[1];
+
+  // Geodesic distance calculation with 1.35 mountain winding factor
+  const calcGeoDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c * 1.35);
+  };
+
+  const distanceKm = originTerminal === destinationPort
+    ? 0
+    : directPreset && directPreset.originId === originTerminal && directPreset.destId === destinationPort
+    ? directPreset.distanceKm
+    : calcGeoDistance(originDepot.lat, originDepot.lng, destDepot.lat, destDepot.lng);
+
+  const transitHours = distanceKm === 0 ? 0 : +(distanceKm / Math.max(15, speedKmH)).toFixed(1);
+  const fuelBurnLiters = Math.round(
+    distanceKm * (vehicleType.includes('Drone') ? 0.22 : vehicleType.includes('Stallion') ? 0.65 : 0.42)
+  );
+
+  const activeCoordinates: [number, number][] = directPreset && directPreset.originId === originTerminal && directPreset.destId === destinationPort
+    ? directPreset.coordinates
+    : [
+        [originDepot.lat, originDepot.lng],
+        [(originDepot.lat + destDepot.lat) / 2 + 0.04, (originDepot.lng + destDepot.lng) / 2 + 0.03],
+        [destDepot.lat, destDepot.lng]
+      ];
+
+  const activeWaypoints = directPreset && directPreset.originId === originTerminal && directPreset.destId === destinationPort
+    ? directPreset.waypoints
+    : [
+        { stage: 'ORIGIN' as const, name: originDepot.name, km: 0, altitudeFt: originDepot.altitudeFt, note: 'Starting Base Staging Pad' },
+        { stage: 'TRANSIT' as const, name: 'Intermediate Ridge Checkpoint', km: Math.round(distanceKm / 2), altitudeFt: Math.round((originDepot.altitudeFt + destDepot.altitudeFt) / 2), note: 'Mid-route Transit Waypoint' },
+        { stage: 'DESTINATION' as const, name: destDepot.name, km: distanceKm, altitudeFt: destDepot.altitudeFt, note: 'Terminal Arrival Post' }
+      ];
+
+  // Pass clearance status
+  const passClearance = (originTerminal === 'sec-dbo' || destinationPort === 'sec-dbo') && !vehicleType.includes('Drone')
+    ? 'Pass Restricted (Drone Advised)'
+    : vehicleType.includes('Drone')
+    ? 'Flight Corridor Open'
+    : 'Convoy Pass Clear';
 
   // Authorize Dispatch Action
   const handleAuthorizeDispatch = () => {
@@ -367,22 +478,22 @@ export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = () => {
           </div>
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pass Clearance</div>
-            <div className="text-xl font-bold text-slate-200 mt-0.5">Flight Passage Clear</div>
+            <div className="text-xl font-bold text-slate-200 mt-0.5">{passClearance}</div>
           </div>
         </div>
       </div>
 
       {/* Bottom Split Layout: Route Map + Waypoint Telemetry List */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Map Container (8 Cols) - Dynamically Renders Active Preset Route */}
+        {/* Map Container (8 Cols) - Dynamically Renders Active Route */}
         <div className="lg:col-span-8 h-[440px] rounded-xl border border-[#1e222d] overflow-hidden relative bg-[#090b0f]">
           <MapContainer
-            center={activePreset.coordinates[Math.floor(activePreset.coordinates.length / 2)]}
+            center={activeCoordinates[Math.floor(activeCoordinates.length / 2)]}
             zoom={8}
             zoomControl={false}
             scrollWheelZoom={true}
             className="w-full h-full leaflet-dark-tiles"
-            key={activePreset.id}
+            key={`${originTerminal}-${destinationPort}-${activeCoordinates.length}`}
           >
             <ZoomControl position="bottomright" />
             <TileLayer
@@ -392,32 +503,32 @@ export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = () => {
 
             {/* Glowing route polyline with highlight blur */}
             <Polyline
-              positions={activePreset.coordinates}
+              positions={activeCoordinates}
               pathOptions={{ color: '#38bdf8', weight: 12, opacity: 0.35, lineCap: 'round', lineJoin: 'round' }}
             />
             <Polyline
-              positions={activePreset.coordinates}
+              positions={activeCoordinates}
               pathOptions={{ color: '#0284c7', weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
             />
             <Polyline
-              positions={activePreset.coordinates}
+              positions={activeCoordinates}
               pathOptions={{ color: '#ffffff', weight: 2.5, opacity: 1.0, lineCap: 'round', lineJoin: 'round' }}
             />
 
             {/* Waypoint markers on map */}
-            {activePreset.coordinates.map((coord, idx) => {
+            {activeCoordinates.map((coord, idx) => {
               const isOrigin = idx === 0;
-              const isDest = idx === activePreset.coordinates.length - 1;
+              const isDest = idx === activeCoordinates.length - 1;
               return (
                 <Marker
-                  key={`${coord[0]}-${coord[1]}`}
+                  key={`${coord[0]}-${coord[1]}-${idx}`}
                   position={coord}
                   icon={createConvoyPinIcon(isOrigin, isDest)}
                 >
                   <Popup>
                     <div className="p-1 text-xs text-slate-200 font-sans">
                       <div className="font-bold border-b border-[#232938] pb-1">
-                        {isOrigin ? 'Origin Terminal' : isDest ? 'Destination Forward Post' : `Route Waypoint ${idx}`}
+                        {isOrigin ? `${originDepot.name} (Origin)` : isDest ? `${destDepot.name} (Destination)` : `Route Waypoint ${idx}`}
                       </div>
                       <div className="text-[11px] text-slate-400 mt-1 font-mono">
                         Coordinates: {coord[0].toFixed(4)}N, {coord[1].toFixed(4)}E
@@ -445,8 +556,8 @@ export const ConvoyPathfinderView: React.FC<ConvoyPathfinderViewProps> = () => {
 
             {/* Dynamic Waypoints List */}
             <div className="mt-4 space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
-              {activePreset.waypoints.map((wp) => (
-                <div key={wp.name} className="p-2.5 rounded-lg bg-[#161922] border border-[#232835] space-y-1">
+              {activeWaypoints.map((wp, idx) => (
+                <div key={`${wp.name}-${idx}`} className="p-2.5 rounded-lg bg-[#161922] border border-[#232835] space-y-1">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-200">
                     <span className="truncate pr-2">{wp.stage}: {wp.name}</span>
                     <span className="font-mono text-cyan-400 shrink-0">Km {wp.km}</span>
