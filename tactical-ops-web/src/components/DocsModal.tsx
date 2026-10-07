@@ -232,11 +232,12 @@ export const DocsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
               </div>
 
               <div className="p-3.5 rounded-lg bg-[#11131a] border border-zinc-800 space-y-1">
-                <div className="font-bold text-white">Q4: What hardware is required to run and demonstrate this system?</div>
+                <div className="font-bold text-white">Q4: What hardware is required to run and deploy this system?</div>
                 <p className="text-zinc-400 leading-relaxed">
-                  Tandem has been engineered with extreme computational efficiency. The client interface compiles to optimized static assets consuming 
-                  less than 180 MB of RAM with near-zero CPU idle footprint, allowing seamless execution on standard laptops (such as an Asus Vivobook Pro 15) 
-                  as well as MIL-STD ruggedized field computing units (like Nvidia Jetson Orin or BEL tactical SBCs).
+                  Tandem has been engineered with extreme computational efficiency for constrained tactical environments. The edge client interface compiles 
+                  to optimized static binaries consuming under 180 MB of RAM with near-zero idle CPU overhead. It is fully deployable across standard 
+                  tactical command laptops, mobile mission workstations, and MIL-STD ruggedized field computing units (such as embedded Nvidia Jetson Orin Industrial 
+                  modules, BEL tactical Single Board Computers, and vehicle-mounted rugged terminals).
                 </p>
               </div>
 
